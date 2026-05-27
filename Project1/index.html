@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Particle Constellation</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0b0c10;
+            font-family: sans-serif;
+        }
+
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .ui-layer {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #ffffff;
+            z-index: 2;
+            pointer-events: none; /* Allows clicks to pass through to the canvas */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui-layer">
+        <h1>Interactive 3D Constellation</h1>
+        <p>Click anywhere to add more particles.</p>
+    </div>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Settings
+        const PARTICLE_COUNT = 100;
+        const MAX_DISTANCE = 150; // Max distance to draw connecting lines
+        const FOV = 250; // Field of view / perspective depth factor
+
+        let particles = [];
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        // Track window resizing
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Particle Blueprint
+        class Particle {
+            constructor(x, y, z, isUserCreated = false) {
+                // Keep coordinates relative to the center of the screen for 3D math
+                this.x = x ?? (Math.random() * width - width / 2);
+                this.y = y ?? (Math.random() * height - height / 2);
+                this.z = z ?? (Math.random() * 400 - 200); // Depth range from -200 to 200
+                
+                // Velocities
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.vz = (Math.random() - 0.5) * 1.0;
+
+                this.baseRadius = 3;
+            }
+
+            update() {
+                // Move particle
+                this.x += this.vx;
+                this.y += this.vy;
+                this.z += this.vz;
+
+                // Simple boundaries box for 3D space
+                const boundaryX = width / 2;
+                const boundaryY = height / 2;
+                const boundaryZ = 200;
+
+                if (Math.abs(this.x) > boundaryX) this.vx *= -1;
+                if (Math.abs(this.y) > boundaryY) this.vy *= -1;
+                if (Math.abs(this.z) > boundaryZ) this.vz *= -1;
+            }
+
+            // Project 3D coordinates onto 2D screen space
+            project() {
+                // Perspective scale factor based on Z depth
+                // FOV / (FOV + Z) creates the illusion of distance
+                const scale = FOV / (FOV + this.z); 
+                
+                return {
+                    screenX: this.x * scale + width / 2,
+                    screenY: this.y * scale + height / 2,
+                    screenRadius: Math.max(0.1, this.baseRadius * scale),
+                    alpha: Math.max(0.1, Math.min(1, scale - 0.3)) // Fades out if too far away
+                };
+            }
+        }
+
+        // Initialize particles
+        function init() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // Handle user clicks to add new dots
+        window.addEventListener('click', (e) => {
+            // Convert screen coordinates to center-relative coordinates
+            const clickX = e.clientX - width / 2;
+            const clickY = e.clientY - height / 2;
+            
+            // Spawn a cluster of 5 connected particles at the click location
+            for(let i = 0; i < 5; i++) {
+                // Give them a random Z depth close to the front/mid ground
+                const randomZ = (Math.random() * 100) - 50; 
+                particles.push(new Particle(clickX, clickY, randomZ, true));
+            }
+        });
+
+        // Main Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            // 1. Update all positions
+            particles.forEach(p => p.update());
+
+            // 2. Get projected 2D coordinates for all particles
+            const projected = particles.map(p => ({
+                particle: p,
+                proj: p.project()
+            }));
+
+            // 3. Draw lines between nearby particles
+            for (let i = 0; i < projected.length; i++) {
+                for (let j = i + 1; j < projected.length; j++) {
+                    const p1 = projected[i];
+                    const p2 = projected[j];
+
+                    // Calculate real 3D distance between points
+                    const dx = p1.particle.x - p2.particle.x;
+                    const dy = p1.particle.y - p2.particle.y;
+                    const dz = p1.particle.z - p2.particle.z;
+                    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    // If they are close enough, draw a line
+                    if (distance < MAX_DISTANCE) {
+                        // Calculate line opacity based on distance AND depth (alpha)
+                        const distanceFactor = 1 - (distance / MAX_DISTANCE);
+                        const averageAlpha = (p1.proj.alpha + p2.proj.alpha) / 2;
+                        const finalAlpha = distanceFactor * averageAlpha * 0.5;
+
+                        ctx.beginPath();
+                        ctx.moveTo(p1.proj.screenX, p1.proj.screenY);
+                        ctx.lineTo(p2.proj.screenX, p2.proj.screenY);
+                        ctx.strokeStyle = `rgba(0, 242, 254, ${finalAlpha})`; // Cyan lines
+                        ctx.lineWidth = Math.min(p1.proj.screenRadius, p2.proj.screenRadius) * 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // 4. Draw the actual dots (drawn after lines so they sit on top)
+            projected.forEach(item => {
+                ctx.beginPath();
+                ctx.arc(item.proj.screenX, item.proj.screenY, item.proj.screenRadius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 242, 254, ${item.proj.alpha})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butwal Civic Gateway — Premium Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* UI-UX-PRO-MAX Style Layering: Perfect canvas isolation */
+        #particleCanvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            background: radial-gradient(circle at 50% 50%, #0e1322 0%, #07090e 100%);
+        }
+
+        /* The viewport content layer slides cleanly above the canvas matrix */
+        .ui-wrapper {
+            position: relative;
+            z-index: 10;
+            pointer-events: none; /* Let coordinates bypass bounding boxes directly to tracking engine */
+        }
+
+        /* Explicit interface interactivity rules */
+        .interactive-target {
+            pointer-events: auto !important;
+        }
+
+        /* Custom glow effects for premium styling */
+        .glow-hover:hover {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.25);
+            text-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-[#07090e] text-slate-100 font-sans antialiased min-h-screen">
+
+    <canvas id="particleCanvas"></canvas>
+
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-cyan-400 text-slate-950 px-4 py-2 rounded-lg font-semibold z-50 interactive-target">
+        Skip to main content
+    </a>
+
+    <div class="ui-wrapper min-h-screen flex flex-col justify-between">
+        
+        <nav class="bg-[#07090e]/40 backdrop-blur-md border-b border-slate-900 sticky top-0 transition-all duration-200">
+            <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+                <div class="flex justify-between h-20 items-center">
+                    
+                    <div class="flex items-center gap-3.5 select-none">
+                        <div class="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-xl flex items-center justify-center text-slate-950 font-black text-xl interactive-target cursor-pointer transition-transform hover:rotate-6">
+                            B
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-base font-bold tracking-tight text-white leading-none mb-1">ButwalNova</span>
+                            <span class="text-[9px] text-cyan-400/80 font-bold tracking-widest uppercase leading-none">Smart Governance</span>
+                        </div>
+                    </div>
+
+                    <div class="hidden md:flex items-center gap-10 font-medium text-xs tracking-wider uppercase text-slate-400">
+                        <a href="#" class="hover:text-cyan-400 focus:outline-none focus:text-cyan-400 transition-colors duration-200 interactive-target">Services</a>
+                        <a href="#" class="hover:text-cyan-400 focus:outline-none focus:text-cyan-400 transition-colors duration-200 interactive-target">Citizen Hub</a>
+                        <a href="#" class="hover:text-cyan-400 focus:outline-none focus:text-cyan-400 transition-colors duration-200 interactive-target">Open Data</a>
+                    </div>
+
+                    <div class="flex items-center">
+                        <button class="min-h-[44px] bg-transparent border border-cyan-400/30 text-cyan-400 text-xs tracking-wider uppercase font-bold px-6 rounded-lg hover:bg-cyan-400/10 hover:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 transition-all duration-300 interactive-target glow-hover">
+                            Connect Portal
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+        
+
+        <main id="main-content" class="py-12 my-auto">
+            <div class="max-w-4xl mx-auto text-center px-6 sm:px-8 lg:px-12">
+                
+                <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-slate-400 text-[11px] font-semibold tracking-wider uppercase mb-8 select-none">
+                    <span class="flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
+                    </span>
+                    System Online
+                </div>
+
+                <h1 class="text-5xl sm:text-7xl font-light tracking-tight text-white leading-[1.12] mb-8 select-none">
+                    Architecting the Future of <br>
+                    <span class="font-bold bg-gradient-to-r from-cyan-400 via-teal-300 to-blue-500 bg-clip-text text-transparent">Digital Civic Services</span>
+                </h1>
+
+                <p class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed tracking-wide mb-12 select-none">
+                    A minimal, low-density data array platform interface. Sweeping your cursor across the grid field forces neighboring constellation points to hitch onto your workspace path.
+                </p>
+
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-sm mx-auto">
+                    <button class="w-full min-h-[48px] bg-cyan-400 text-slate-950 text-xs tracking-wider uppercase font-bold px-8 rounded-lg hover:bg-cyan-300 active:scale-98 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-200 interactive-target shadow-lg shadow-cyan-400/10">
+                        Launch System
+                    </button>
+                    <button class="w-full min-h-[48px] bg-slate-950/40 border border-slate-800 text-slate-300 text-xs tracking-wider uppercase font-bold px-8 rounded-lg hover:bg-slate-900/60 focus:outline-none focus:ring-2 focus:ring-slate-700 active:scale-98 transition-all duration-200 interactive-target">
+                        Explore Open API
+                    </button>
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="py-8 border-t border-slate-950 bg-slate-950/10 text-center text-[10px] text-slate-500 tracking-widest uppercase select-none">
+            &copy; 2026 Butwal Municipal Digital Infrastructure Network.
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // PREMIUM PARAMETERS: Reduced flying counts to avoid screen cluttering
+        const PARTICLE_COUNT = 55; 
+        const MAX_DISTANCE = 160; 
+        const FOV = 240; 
+
+        let particles = [];
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        // Interactive mouse pointer tracker mapping coordinates relative to grid center
+        let mouse = {
+            x: null,
+            y: null,
+            z: 0, // Projected on the front-to-mid layer depth vector
+            screenX: null,
+            screenY: null
+        };
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Tracks exact tracking vector across window layout bounds
+        window.addEventListener('mousemove', (e) => {
+            mouse.screenX = e.clientX;
+            mouse.screenY = e.clientY;
+            // Map window pixels straight into center-based 3D workspace variables
+            mouse.x = e.clientX - width / 2;
+            mouse.y = e.clientY - height / 2;
+        });
+
+        // Clears line anchoring paths if mouse escapes screen bounds
+        window.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        // Particle Blueprint Class Framework
+        class Particle {
+            constructor(x, y, z) {
+                this.x = x ?? (Math.random() * width - width / 2);
+                this.y = y ?? (Math.random() * height - height / 2);
+                this.z = z ?? (Math.random() * 400 - 200);
+                
+                // Lower velocity speeds for uniform, sophisticated drift loops
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.vz = (Math.random() - 0.5) * 0.4;
+                this.baseRadius = 2.0;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.z += this.vz;
+
+                const boundaryX = width / 2;
+                const boundaryY = height / 2;
+                const boundaryZ = 200;
+
+                if (Math.abs(this.x) > boundaryX) this.vx *= -1;
+                if (Math.abs(this.y) > boundaryY) this.vy *= -1;
+                if (Math.abs(this.z) > boundaryZ) this.vz *= -1;
+            }
+
+            project() {
+                const scale = FOV / (FOV + this.z);
+                return {
+                    screenX: this.x * scale + width / 2,
+                    screenY: this.y * scale + height / 2,
+                    screenRadius: Math.max(0.1, this.baseRadius * scale),
+                    alpha: Math.max(0.05, Math.min(1, scale - 0.3))
+                };
+            }
+        }
+
+        function init() {
+            particles = [];
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // Click handler to inject 4 tight clusters safely into space matrices
+        window.addEventListener('click', (e) => {
+            if (e.target.closest('.interactive-target')) return;
+            const clickX = e.clientX - width / 2;
+            const clickY = e.clientY - height / 2;
+            
+            for(let i = 0; i < 4; i++) {
+                particles.push(new Particle(clickX, clickY, (Math.random() * 60) - 30));
+            }
+        });
+
+        // Main Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => p.update());
+
+            const projected = particles.map(p => ({
+                particle: p,
+                proj: p.project()
+            }));
+
+            // 1. Core Intercept Layer: Interconnect nearby nodes
+            for (let i = 0; i < projected.length; i++) {
+                const p1 = projected[i];
+
+                // CURSOR TRACKING LOGIC: Map vectors from nodes straight to cursor coordinates
+                if (mouse.x !== null && mouse.y !== null) {
+                    const mdx = p1.particle.x - mouse.x;
+                    const mdy = p1.particle.y - mouse.y;
+                    const mdz = p1.particle.z - mouse.z; // Cursor sits at depth 0
+                    const mDistance = Math.sqrt(mdx * mdx + mdy * mdy + mdz * mdz);
+
+                    if (mDistance < MAX_DISTANCE + 20) { // Slight buffer distance advantage for mouse paths
+                        const mFactor = 1 - (mDistance / (MAX_DISTANCE + 20));
+                        const mAlpha = mFactor * p1.proj.alpha * 0.45;
+
+                        ctx.beginPath();
+                        ctx.moveTo(p1.proj.screenX, p1.proj.screenY);
+                        ctx.lineTo(mouse.screenX, mouse.screenY);
+                        ctx.strokeStyle = `rgba(34, 211, 238, ${mAlpha})`; /* Cyan interaction vectors */
+                        ctx.lineWidth = p1.proj.screenRadius * 0.4;
+                        ctx.stroke();
+                    }
+                }
+
+                // Connect inter-node filaments
+                for (let j = i + 1; j < projected.length; j++) {
+                    const p2 = projected[j];
+
+                    const dx = p1.particle.x - p2.particle.x;
+                    const dy = p1.particle.y - p2.particle.y;
+                    const dz = p1.particle.z - p2.particle.z;
+                    const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+                    if (distance < MAX_DISTANCE) {
+                        const distanceFactor = 1 - (distance / MAX_DISTANCE);
+                        const averageAlpha = (p1.proj.alpha + p2.proj.alpha) / 2;
+                        const finalAlpha = distanceFactor * averageAlpha * 0.2; // Premium faint connections
+
+                        ctx.beginPath();
+                        ctx.moveTo(p1.proj.screenX, p1.proj.screenY);
+                        ctx.lineTo(p2.proj.screenX, p2.proj.screenY);
+                        ctx.strokeStyle = `rgba(6, 182, 212, ${finalAlpha})`;
+                        ctx.lineWidth = Math.min(p1.proj.screenRadius, p2.proj.screenRadius) * 0.3;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // 2. Draw nodes cleanly over the network paths
+            projected.forEach(item => {
+                ctx.beginPath();
+                ctx.arc(item.proj.screenX, item.proj.screenY, item.proj.screenRadius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(34, 211, 238, ${item.proj.alpha * 0.8})`; 
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
