@@ -1,0 +1,2202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ButwalCitizen — Smart City Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & ROOT ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:      #050d1a;
+  --navy-2:    #071225;
+  --navy-3:    #0a1a35;
+  --navy-4:    #0d2045;
+  --navy-mid:  #112a58;
+  --gold:      #c9a84c;
+  --gold-2:    #dbb95e;
+  --gold-pale: #f5edd6;
+  --gold-dim:  rgba(201,168,76,0.18);
+  --ivory:     #f8f4ec;
+  --ivory-2:   #f0e9d8;
+  --ivory-3:   #e8dfc8;
+  --text-head: #f8f4ec;
+  --text-body: rgba(248,244,236,0.72);
+  --text-mute: rgba(248,244,236,0.42);
+  --border:    rgba(201,168,76,0.18);
+  --border-2:  rgba(201,168,76,0.32);
+  --glass-bg:  rgba(5,13,26,0.55);
+  --glass-bdr: rgba(201,168,76,0.22);
+  --serif:     'Cormorant Garamond', Georgia, serif;
+  --sans:      'Outfit', sans-serif;
+  --ease:      cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  background: var(--navy);
+  color: var(--text-head);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom cursor */
+#cursor {
+  width: 10px; height: 10px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.12s var(--ease), opacity 0.2s;
+  mix-blend-mode: screen;
+}
+#cursor-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(201,168,76,0.5);
+  border-radius: 50%;
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 9998;
+  transition: transform 0.35s var(--ease), width 0.3s, height 0.3s, border-color 0.3s;
+}
+a:hover ~ #cursor, button:hover ~ #cursor { transform: scale(3); }
+
+/* ===== NOISE TEXTURE OVERLAY ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+}
+
+/* ===== NAVBAR ===== */
+#navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 5vw;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(
+    105deg,
+    rgba(5, 13, 26, 0.52) 0%,
+    rgba(9, 20, 42, 0.48) 50%,
+    rgba(13, 32, 69, 0.44) 100%
+  );
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border-bottom: 1px solid rgba(201,168,76,0.16);
+  transition: background 0.45s, border-color 0.45s;
+}
+#navbar.scrolled {
+  background: linear-gradient(
+    105deg,
+    rgba(5, 13, 26, 0.90) 0%,
+    rgba(9, 20, 42, 0.86) 50%,
+    rgba(13, 32, 69, 0.82) 100%
+  );
+  border-bottom-color: rgba(201,168,76,0.30);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: 44px; height: 44px;
+  flex-shrink: 0;
+}
+
+.brand-words { display: flex; flex-direction: column; line-height: 1; }
+.brand-name {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ivory);
+  letter-spacing: 0.3px;
+}
+.brand-tagline {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 3px;
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+nav ul a {
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--text-body);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  letter-spacing: 0.2px;
+  transition: color 0.2s, background 0.2s;
+  position: relative;
+}
+nav ul a::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 1px;
+  background: var(--gold);
+  transition: width 0.3s var(--ease);
+}
+nav ul a:hover { color: var(--gold-pale); }
+nav ul a:hover::after { width: 20px; }
+nav ul a.active { color: var(--gold); font-weight: 500; }
+nav ul a.active::after { width: 20px; }
+
+.btn-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gold);
+  color: var(--navy);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 22px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  transition: background 0.2s, transform 0.18s;
+  margin-left: 8px;
+}
+.btn-nav:hover { background: var(--gold-2); transform: translateY(-1px); }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 55% 45%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hero background layers */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 50%, rgba(17,42,88,0.7) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 20% 80%, rgba(201,168,76,0.05) 0%, transparent 60%),
+    linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 40%, var(--navy-3) 100%);
+}
+
+/* Decorative grid lines */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Diagonal accent line */
+.hero-diagonal {
+  position: absolute;
+  top: 0; right: 43%;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(201,168,76,0.15) 30%, rgba(201,168,76,0.25) 60%, transparent 100%);
+}
+
+.hero-left {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 64px 100px 8vw;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: slideUp 0.9s 0.2s var(--ease) forwards;
+}
+.eyebrow-line {
+  width: 32px; height: 1px;
+  background: var(--gold);
+}
+.eyebrow-text {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 3.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(52px, 5.5vw, 82px);
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -1px;
+  color: var(--ivory);
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: slideUp 0.9s 0.35s var(--ease) forwards;
+}
+h1 em {
+  font-style: italic;
+  color: var(--gold);
+  display: block;
+}
+h1 span.outline {
+  -webkit-text-stroke: 1px rgba(248,244,236,0.35);
+  color: transparent;
+}
+
+.hero-desc {
+  font-size: 17px;
+  font-weight: 300;
+  color: var(--text-body);
+  line-height: 1.8;
+  max-width: 480px;
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: slideUp 0.9s 0.5s var(--ease) forwards;
+}
+
+.hero-btns {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 64px;
+  opacity: 0;
+  animation: slideUp 0.9s 0.65s var(--ease) forwards;
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--gold);
+  color: var(--navy);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 15px 32px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  transition: background 0.22s, transform 0.2s, box-shadow 0.22s;
+}
+.btn-gold:hover {
+  background: var(--gold-2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(201,168,76,0.28);
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--ivory);
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  padding: 15px 28px;
+  border-radius: 10px;
+  border: 1px solid var(--border-2);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.btn-ghost:hover {
+  border-color: var(--gold);
+  background: var(--gold-dim);
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  display: flex;
+  gap: 0;
+  opacity: 0;
+  animation: slideUp 0.9s 0.8s var(--ease) forwards;
+}
+.stat {
+  padding: 0 36px 0 0;
+  margin-right: 36px;
+  border-right: 1px solid var(--border);
+}
+.stat:last-child { border-right: none; }
+.stat-n {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 600;
+  color: var(--ivory);
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.stat-l {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-mute);
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+
+/* ===== HERO RIGHT — MAP PANEL ===== */
+.hero-right {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 5vw 80px 40px;
+  opacity: 0;
+  animation: fadeIn 1.2s 0.4s var(--ease) forwards;
+}
+
+.map-panel {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+}
+
+.map-frame {
+  width: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--navy-3);
+  position: relative;
+  aspect-ratio: 4/3;
+}
+
+.map-frame svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Coat of arms overlay */
+.coa-badge {
+  position: absolute;
+  top: -24px;
+  right: -20px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--navy-2);
+  border: 2px solid var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 0 6px rgba(201,168,76,0.08);
+}
+
+.map-label {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(5,13,26,0.85);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  backdrop-filter: blur(10px);
+}
+.map-label-city {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.3px;
+}
+.map-label-meta {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* Floating metric cards */
+.metric-card {
+  position: absolute;
+  background: rgba(7,18,37,0.82);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  backdrop-filter: blur(16px);
+  min-width: 150px;
+}
+.mc-label { font-size: 10px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+.mc-value { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--ivory); line-height: 1; }
+.mc-sub   { font-size: 10.5px; color: var(--text-mute); margin-top: 3px; }
+.mc-dot   { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; margin-right: 5px; animation: blink 1.6s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.mc-top-left  { top: 30px; left: -30px; animation: float1 5s ease-in-out infinite; }
+.mc-bottom-right { bottom: 60px; right: -30px; animation: float2 6s ease-in-out infinite; }
+
+@keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(8px)} }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===== MARQUEE STRIP ===== */
+.marquee-strip {
+  background: var(--gold);
+  overflow: hidden;
+  padding: 13px 0;
+  position: relative;
+  z-index: 4;
+}
+.marquee-inner {
+  display: flex;
+  gap: 0;
+  animation: marquee 24s linear infinite;
+  width: max-content;
+}
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 40px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--navy); opacity: 0.4; }
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ===== SERVICES SECTION ===== */
+.section { padding: 110px 8vw; position: relative; }
+.section-alt { background: var(--navy-2); }
+
+.section-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.section-eyebrow-line { width: 28px; height: 1px; background: var(--gold); }
+.section-eyebrow-text {
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold);
+}
+
+.section-heading {
+  font-family: var(--serif);
+  font-size: clamp(38px, 3.5vw, 58px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.8px;
+  color: var(--ivory);
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 16px;
+  color: var(--text-body);
+  font-weight: 300;
+  max-width: 520px;
+  line-height: 1.8;
+  margin-bottom: 60px;
+}
+
+/* Services grid */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.service-tile {
+  background: rgba(7,18,37,0.6);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 36px 32px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.3s var(--ease), border-color 0.3s, background 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.service-tile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.service-tile:hover {
+  transform: translateY(-6px);
+  border-color: var(--border-2);
+  background: rgba(11,24,52,0.9);
+}
+.service-tile:hover::before { opacity: 1; }
+
+.tile-icon {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: var(--gold-dim);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.tile-icon svg { width: 24px; height: 24px; stroke: var(--gold); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tile-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ivory);
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+.tile-desc {
+  font-size: 14px;
+  color: var(--text-body);
+  line-height: 1.7;
+  font-weight: 300;
+}
+.tile-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.service-tile:hover .tile-arrow { opacity: 1; transform: translateX(0); }
+
+/* ===== ABOUT / NEPAL SECTION ===== */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-visual {
+  position: relative;
+}
+.nepal-map-box {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--navy-3);
+  position: relative;
+}
+.about-quote {
+  position: absolute;
+  bottom: -20px; right: -20px;
+  background: var(--gold);
+  border-radius: 14px;
+  padding: 20px 24px;
+  max-width: 200px;
+}
+.about-quote-text {
+  font-family: var(--serif);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--navy);
+  line-height: 1.5;
+  font-weight: 500;
+}
+.about-quote-attr {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(5,13,26,0.6);
+  margin-top: 6px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.about-right ul {
+  list-style: none;
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.about-right ul li {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.li-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.li-text { font-size: 15px; color: var(--text-body); line-height: 1.7; font-weight: 300; }
+.li-text strong { color: var(--ivory); font-weight: 500; }
+
+/* ===== FEATURES ===== */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 60px;
+}
+.feature-card {
+  border-radius: 16px;
+  padding: 30px 24px;
+  border: 1px solid var(--border);
+  background: rgba(5,13,26,0.5);
+  transition: transform 0.3s var(--ease), border-color 0.3s;
+}
+.feature-card:hover { transform: translateY(-5px); border-color: var(--border-2); }
+.fc-num {
+  font-family: var(--serif);
+  font-size: 48px;
+  font-weight: 600;
+  color: rgba(201,168,76,0.12);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.fc-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ivory);
+  margin-bottom: 8px;
+}
+.fc-text { font-size: 13.5px; color: var(--text-body); line-height: 1.65; font-weight: 300; }
+
+/* ===== TESTIMONIALS ===== */
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.testi-card {
+  background: rgba(7,18,37,0.6);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 32px 28px;
+  transition: border-color 0.3s;
+}
+.testi-card:hover { border-color: var(--border-2); }
+.testi-stars {
+  display: flex; gap: 3px; margin-bottom: 18px;
+}
+.testi-stars span { color: var(--gold); font-size: 14px; }
+.testi-text {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-style: italic;
+  color: var(--text-body);
+  line-height: 1.7;
+  margin-bottom: 22px;
+}
+.testi-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.testi-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gold);
+}
+.testi-name { font-size: 14px; font-weight: 600; color: var(--ivory); }
+.testi-loc  { font-size: 12px; color: var(--text-mute); margin-top: 2px; }
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--navy-2);
+  border-top: 1px solid var(--border);
+  padding: 80px 8vw 0;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 60px;
+  padding-bottom: 60px;
+  border-bottom: 1px solid var(--border);
+}
+
+.footer-brand .brand { margin-bottom: 20px; display: inline-flex; }
+.footer-brand p {
+  font-size: 14px;
+  color: var(--text-mute);
+  line-height: 1.8;
+  font-weight: 300;
+  max-width: 300px;
+}
+
+.footer-col h4 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.footer-col ul a {
+  font-size: 14px;
+  color: var(--text-mute);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 300;
+}
+.footer-col ul a:hover { color: var(--ivory); }
+
+.footer-social {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+.social-btn {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: transparent;
+  text-decoration: none;
+}
+.social-btn:hover { border-color: var(--gold); background: var(--gold-dim); }
+.social-btn svg { width: 16px; height: 16px; stroke: var(--text-mute); transition: stroke 0.2s; }
+.social-btn:hover svg { stroke: var(--gold); }
+
+.footer-bottom {
+  padding: 28px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-copy {
+  font-size: 13px;
+  color: var(--text-mute);
+  font-weight: 300;
+}
+.footer-copy span { color: var(--gold); }
+.footer-legal {
+  display: flex;
+  gap: 28px;
+}
+.footer-legal a {
+  font-size: 13px;
+  color: var(--text-mute);
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: 300;
+}
+.footer-legal a:hover { color: var(--ivory); }
+
+/* ===== SCROLL ANIMATIONS ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ===== DIVIDER ===== */
+.gold-divider {
+  width: 60px; height: 2px;
+  background: var(--gold);
+  margin: 0 auto 60px;
+}
+
+/* Emergency banner */
+.emergency-bar {
+  background: linear-gradient(135deg, var(--navy-4), var(--navy-3));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 40px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  margin-bottom: 20px;
+}
+.emergency-text h3 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ivory);
+  margin-bottom: 8px;
+}
+.emergency-text p { font-size: 15px; color: var(--text-body); font-weight: 300; }
+.emergency-numbers {
+  display: flex;
+  gap: 24px;
+  flex-shrink: 0;
+}
+.emergency-num {
+  text-align: center;
+  background: rgba(5,13,26,0.5);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 24px;
+}
+.emergency-num .en-label { font-size: 10px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+.emergency-num .en-number { font-family: var(--serif); font-size: 22px; font-weight: 600; color: var(--ivory); }
+
+/* Quick links bar above footer */
+.quick-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin: 60px 0;
+}
+.quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 16px;
+  background: rgba(7,18,37,0.6);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.25s, border-color 0.25s;
+  text-align: center;
+}
+.quick-item:hover { transform: translateY(-4px); border-color: var(--border-2); }
+.qi-icon { font-size: 26px; }
+.qi-label { font-size: 12px; font-weight: 500; color: var(--text-body); letter-spacing: 0.3px; }
+
+/* =====================================================
+   HAMBURGER & MOBILE DRAWER
+   ===================================================== */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 40px; height: 40px;
+  background: transparent;
+  border: 1px solid var(--border-2);
+  border-radius: 9px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+.hamburger:hover { border-color: var(--gold); }
+.hamburger span {
+  display: block;
+  width: 20px; height: 1.5px;
+  background: var(--ivory);
+  border-radius: 2px;
+  transition: transform 0.3s var(--ease), opacity 0.3s, width 0.3s;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* Dim backdrop — separate from the panel itself */
+.drawer-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+  background: rgba(5,13,26,0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s var(--ease);
+}
+.drawer-backdrop.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Slide panel — right side, 280px wide */
+.mobile-drawer {
+  display: none;
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  z-index: 999;
+  width: 280px;
+  background: linear-gradient(160deg, #071225 0%, #0a1a35 100%);
+  border-left: 1px solid var(--border);
+  transform: translateX(100%);
+  pointer-events: none;
+  transition: transform 0.42s var(--ease), box-shadow 0.42s;
+  box-shadow: none;
+  overflow-y: auto;
+}
+.mobile-drawer.open {
+  transform: translateX(0);
+  pointer-events: all;
+  box-shadow: -24px 0 60px rgba(0,0,0,0.55);
+}
+
+.drawer-inner {
+  display: flex;
+  flex-direction: column;
+  padding: 80px 28px 40px;
+  min-height: 100%;
+}
+
+/* Drawer header — small brand inside panel */
+.drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.drawer-brand-name {
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ivory);
+}
+.drawer-brand-sub {
+  font-size: 8.5px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 2px;
+}
+
+.drawer-inner ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.drawer-inner ul li {
+  opacity: 0;
+  transform: translateX(16px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+/* Stagger each link when panel opens */
+.mobile-drawer.open .drawer-inner ul li:nth-child(1) { opacity:1; transform:none; transition-delay:0.08s; }
+.mobile-drawer.open .drawer-inner ul li:nth-child(2) { opacity:1; transform:none; transition-delay:0.13s; }
+.mobile-drawer.open .drawer-inner ul li:nth-child(3) { opacity:1; transform:none; transition-delay:0.18s; }
+.mobile-drawer.open .drawer-inner ul li:nth-child(4) { opacity:1; transform:none; transition-delay:0.23s; }
+.mobile-drawer.open .drawer-inner ul li:nth-child(5) { opacity:1; transform:none; transition-delay:0.28s; }
+.mobile-drawer.open .drawer-inner ul li:nth-child(6) { opacity:1; transform:none; transition-delay:0.33s; }
+
+.drawer-inner ul a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--sans);
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--text-body);
+  text-decoration: none;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  transition: color 0.2s, padding-left 0.22s var(--ease);
+  letter-spacing: 0.1px;
+}
+.drawer-inner ul a::after {
+  content: '→';
+  font-size: 12px;
+  color: var(--gold);
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.22s var(--ease);
+  transform: translateX(-6px);
+}
+.drawer-inner ul a:hover,
+.drawer-inner ul a.active {
+  color: var(--gold);
+  padding-left: 6px;
+}
+.drawer-inner ul a:hover::after,
+.drawer-inner ul a.active::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Sign in button inside drawer */
+.drawer-footer {
+  margin-top: auto;
+  padding-top: 28px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s 0.38s var(--ease), transform 0.35s 0.38s var(--ease);
+}
+.mobile-drawer.open .drawer-footer {
+  opacity: 1;
+  transform: none;
+}
+.drawer-signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--gold);
+  color: var(--navy);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 9px;
+  text-decoration: none;
+  transition: background 0.2s;
+  letter-spacing: 0.2px;
+}
+.drawer-signin:hover { background: var(--gold-2); }
+.drawer-contact {
+  margin-top: 16px;
+  font-size: 11.5px;
+  color: var(--text-mute);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+/* =====================================================
+   RESPONSIVE BREAKPOINTS
+   ===================================================== */
+
+/* ── 1280px: slightly tighten nav spacing ── */
+@media (max-width: 1280px) {
+  nav ul a { padding: 8px 11px; font-size: 13px; }
+  .btn-nav  { padding: 9px 16px; }
+  .hero-left { padding: 120px 40px 100px 6vw; }
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { gap: 40px; }
+}
+
+/* ── 1024px: collapse to tablet ── */
+@media (max-width: 1024px) {
+  /* Nav → hamburger */
+  nav { display: none; }
+  .hamburger { display: flex; }
+  .mobile-drawer { display: block; }
+  .drawer-backdrop { display: block; }
+  body { cursor: auto; }
+  #cursor, #cursor-ring { display: none; }
+
+  /* Hero: stack vertically */
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .hero-left {
+    padding: 130px 6vw 60px;
+    text-align: center;
+    align-items: center;
+  }
+  .eyebrow { justify-content: center; }
+  .hero-desc { max-width: 560px; text-align: left; }
+  .hero-btns { justify-content: center; flex-wrap: wrap; }
+  .hero-stats {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .stat {
+    padding: 0 20px 0 0;
+    margin-right: 20px;
+  }
+  .hero-diagonal { display: none; }
+
+  /* Map panel below hero text */
+  .hero-right {
+    padding: 0 6vw 80px;
+    justify-content: center;
+  }
+  .map-panel { max-width: 540px; }
+  .mc-top-left  { top: -16px; left: -10px; }
+  .mc-bottom-right { bottom: 20px; right: -10px; }
+
+  /* Sections */
+  .section { padding: 80px 6vw; }
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 60px;
+  }
+  .about-quote { position: static; margin-top: 20px; max-width: 100%; border-radius: 14px; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+  .emergency-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 32px 28px;
+  }
+  .emergency-numbers { flex-wrap: wrap; gap: 12px; }
+  .quick-bar { grid-template-columns: repeat(3, 1fr); }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+  .footer-legal { flex-wrap: wrap; justify-content: center; }
+}
+
+/* ── 768px: mobile landscape / large phones ── */
+@media (max-width: 768px) {
+  h1 { font-size: clamp(40px, 9vw, 60px); }
+  .section-heading { font-size: clamp(30px, 7vw, 44px); }
+
+  .hero-left { padding: 110px 5vw 48px; }
+  .hero-stats { gap: 16px; }
+  .stat { padding: 0 16px 0 0; margin-right: 16px; }
+  .stat-n { font-size: 30px; }
+
+  .map-panel { max-width: 100%; }
+  .coa-badge { width: 70px; height: 70px; top: -16px; right: -10px; }
+  .metric-card { min-width: 120px; padding: 10px 12px; }
+  .mc-value { font-size: 18px; }
+  .mc-top-left  { top: -12px; left: 8px; }
+  .mc-bottom-right { bottom: 60px; right: 8px; }
+
+  .services-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .quick-bar { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .quick-item { padding: 18px 10px; }
+
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .footer-brand { grid-column: 1 / -1; }
+
+  .marquee-item { padding: 0 24px; font-size: 11.5px; }
+
+  .section { padding: 64px 5vw; }
+  .about-grid { gap: 40px; }
+  .emergency-numbers { gap: 10px; }
+  .emergency-num { padding: 12px 16px; }
+  .en-number { font-size: 18px; }
+}
+
+/* ── 480px: standard mobile portrait ── */
+@media (max-width: 480px) {
+  #navbar { padding: 0 5vw; height: 64px; }
+  .brand-name { font-size: 17px; }
+  .brand-tagline { display: none; }
+
+  h1 { font-size: clamp(36px, 10vw, 52px); letter-spacing: -0.5px; }
+  .hero-left { padding: 96px 5vw 40px; }
+  .hero-desc { font-size: 15px; }
+  .btn-gold, .btn-ghost { font-size: 14px; padding: 13px 22px; }
+  .hero-btns { flex-direction: column; align-items: stretch; }
+  .hero-btns a { justify-content: center; }
+  .hero-stats { flex-direction: column; align-items: center; gap: 16px; }
+  .stat { border-right: none; padding: 0; margin: 0; text-align: center; }
+
+  .hero-right { padding: 0 5vw 60px; }
+  .map-panel { max-width: 100%; }
+  .metric-card { display: none; }
+  .coa-badge { width: 60px; height: 60px; top: -12px; right: -8px; }
+
+  .section { padding: 56px 5vw; }
+  .section-heading { font-size: clamp(28px, 8vw, 38px); }
+  .section-sub { font-size: 14.5px; }
+
+  .services-grid { grid-template-columns: 1fr; gap: 14px; }
+  .service-tile { padding: 26px 22px; }
+  .tile-title { font-size: 19px; }
+
+  .features-grid { grid-template-columns: 1fr; gap: 12px; }
+  .feature-card { padding: 24px 20px; }
+  .fc-num { font-size: 36px; }
+
+  .testimonials-grid { grid-template-columns: 1fr; }
+
+  .emergency-bar { padding: 24px 20px; gap: 20px; }
+  .emergency-text h3 { font-size: 22px; }
+  .emergency-numbers { gap: 8px; }
+  .emergency-num { padding: 10px 12px; flex: 1; min-width: 0; }
+  .en-number { font-size: 16px; }
+  .en-label { font-size: 9px; }
+
+  .quick-bar { grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 40px 0; }
+  .quick-item { padding: 18px 12px; }
+  .qi-icon { font-size: 22px; }
+  .qi-label { font-size: 11.5px; }
+
+  .footer-grid { grid-template-columns: 1fr; gap: 0; }
+  .footer-brand { grid-column: auto; }
+  /* On mobile, collapse footer to just brand + essential links + bottom bar */
+  .footer-col { display: none; }
+  .footer-brand p { max-width: 100%; font-size: 13px; }
+  .footer-brand .brand { margin-bottom: 14px; }
+  .footer-social { gap: 8px; margin-top: 18px; }
+  footer { padding: 40px 5vw 0; }
+  .footer-bottom {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+    padding: 20px 0;
+  }
+  .footer-legal { flex-wrap: wrap; justify-content: center; gap: 12px; }
+  .footer-legal a { font-size: 12px; }
+  .footer-copy { font-size: 12px; }
+
+  .about-grid { gap: 32px; }
+  .about-quote { right: 0; bottom: 0; }
+}
+
+/* ── 375px: smallest phones (iPhone SE etc.) ── */
+@media (max-width: 375px) {
+  h1 { font-size: 34px; }
+  .hero-left { padding: 88px 4vw 36px; }
+  .section { padding: 48px 4vw; }
+  .services-grid, .features-grid, .testimonials-grid { gap: 10px; }
+  .emergency-numbers { flex-direction: column; }
+  .quick-bar { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid { gap: 0; }
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ===== NAVBAR ===== -->
+<header id="navbar">
+  <a class="brand" href="#">
+    <svg class="brand-logo" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="44" height="44" rx="12" fill="#071225"/>
+      <rect x="0.5" y="0.5" width="43" height="43" rx="11.5" stroke="#c9a84c" stroke-opacity="0.35"/>
+      <!-- House/city hall -->
+      <path d="M8 32 L8 20 L22 11 L36 20 L36 32" stroke="#c9a84c" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+      <!-- Door -->
+      <rect x="17" y="24" width="10" height="8" rx="1.5" fill="none" stroke="#c9a84c" stroke-width="1.4"/>
+      <!-- Windows -->
+      <rect x="11" y="21" width="5" height="4" rx="1" fill="rgba(201,168,76,0.25)" stroke="#c9a84c" stroke-width="1"/>
+      <rect x="28" y="21" width="5" height="4" rx="1" fill="rgba(201,168,76,0.25)" stroke="#c9a84c" stroke-width="1"/>
+      <!-- Flag/pinnacle -->
+      <line x1="22" y1="11" x2="22" y2="7" stroke="#c9a84c" stroke-width="1.4"/>
+      <polygon points="22,7 27,9 22,11" fill="#c9a84c" opacity="0.8"/>
+      <!-- Base -->
+      <line x1="6" y1="32" x2="38" y2="32" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-words">
+      <span class="brand-name">ButwalCitizen</span>
+      <span class="brand-tagline">Smart City Portal</span>
+    </div>
+  </a>
+
+  <nav>
+    <ul>
+      <li><a href="#home" class="nav-link active" data-section="home">Home</a></li>
+      <li><a href="#services" class="nav-link" data-section="services">Services</a></li>
+      <li><a href="#about" class="nav-link" data-section="about">About</a></li>
+      <li><a href="#features" class="nav-link" data-section="features">Features</a></li>
+      <li><a href="#testimonials" class="nav-link" data-section="testimonials">Citizens</a></li>
+      <li><a href="#emergency" class="nav-link" data-section="emergency">Emergency</a></li>
+      <li><a href="#" class="btn-nav">Sign In &rarr;</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hamburger (mobile only) -->
+  <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- Backdrop -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+<!-- Slide panel -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <div class="drawer-inner">
+    <!-- Mini brand -->
+    <div class="drawer-brand">
+      <svg width="32" height="32" viewBox="0 0 44 44" fill="none">
+        <rect width="44" height="44" rx="10" fill="#071225"/>
+        <rect x="0.5" y="0.5" width="43" height="43" rx="9.5" stroke="#c9a84c" stroke-opacity="0.4"/>
+        <path d="M8 32 L8 20 L22 11 L36 20 L36 32" stroke="#c9a84c" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+        <rect x="17" y="24" width="10" height="8" rx="1.5" fill="none" stroke="#c9a84c" stroke-width="1.4"/>
+        <line x1="22" y1="11" x2="22" y2="7" stroke="#c9a84c" stroke-width="1.4"/>
+        <polygon points="22,7 27,9 22,11" fill="#c9a84c" opacity="0.8"/>
+        <line x1="6" y1="32" x2="38" y2="32" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="drawer-brand-name">ButwalCitizen</div>
+        <div class="drawer-brand-sub">Smart City Portal</div>
+      </div>
+    </div>
+
+    <!-- Nav links -->
+    <ul>
+      <li><a href="#home"         class="mob-link" data-section="home">Home</a></li>
+      <li><a href="#services"     class="mob-link" data-section="services">Services</a></li>
+      <li><a href="#about"        class="mob-link" data-section="about">About</a></li>
+      <li><a href="#features"     class="mob-link" data-section="features">Features</a></li>
+      <li><a href="#testimonials" class="mob-link" data-section="testimonials">Citizens</a></li>
+      <li><a href="#emergency"    class="mob-link" data-section="emergency">Emergency</a></li>
+    </ul>
+
+    <!-- Footer of drawer -->
+    <div class="drawer-footer">
+      <a href="#" class="drawer-signin">Sign In &rarr;</a>
+      <div class="drawer-contact">Butwal Metropolitan City &mdash; 071-540800</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-diagonal"></div>
+
+  <div class="hero-left">
+    <div class="eyebrow">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Butwal Metropolitan City — Lumbini Province</span>
+    </div>
+    <h1>
+      Your City,
+      <em>Reimagined</em>
+      <span class="outline">for You.</span>
+    </h1>
+    <p class="hero-desc">
+      A single, powerful civic platform — book local transport, file complaints, pay bills, and access every government service in Butwal. Built with dignity, built for every citizen.
+    </p>
+    <div class="hero-btns">
+      <a href="#" class="btn-gold">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Create Account
+      </a>
+      <a href="#services" class="btn-ghost">
+        Explore Services
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-n">65K+</div>
+        <div class="stat-l">Registered Citizens</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">24/7</div>
+        <div class="stat-l">Service Access</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">98%</div>
+        <div class="stat-l">Resolution Rate</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">12</div>
+        <div class="stat-l">City Wards Covered</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="map-panel">
+      <!-- Coat of Arms badge -->
+      <div class="coa-badge">
+        <!-- Nepal Coat of Arms SVG -->
+        <svg viewBox="0 0 80 80" width="64" height="64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Mountain peaks -->
+          <polygon points="40,10 52,30 28,30" fill="rgba(201,168,76,0.9)"/>
+          <polygon points="32,16 44,30 20,30" fill="rgba(201,168,76,0.7)"/>
+          <polygon points="48,16 60,30 36,30" fill="rgba(201,168,76,0.7)"/>
+          <!-- Sun -->
+          <circle cx="40" cy="22" r="5" fill="#c9a84c"/>
+          <!-- Foothill/land -->
+          <path d="M18 38 Q40 30 62 38 L62 44 Q40 36 18 44 Z" fill="rgba(201,168,76,0.5)"/>
+          <!-- Laurel wreath left -->
+          <path d="M20 30 Q14 36 16 44 Q18 50 22 52" stroke="#c9a84c" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M17 33 Q12 38 14 44" stroke="#c9a84c" stroke-width="1.2" fill="none" opacity="0.6"/>
+          <!-- Laurel wreath right -->
+          <path d="M60 30 Q66 36 64 44 Q62 50 58 52" stroke="#c9a84c" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          <path d="M63 33 Q68 38 66 44" stroke="#c9a84c" stroke-width="1.2" fill="none" opacity="0.6"/>
+          <!-- Bottom ribbon -->
+          <path d="M24 55 Q40 60 56 55 L54 62 Q40 67 26 62 Z" fill="rgba(201,168,76,0.4)" stroke="#c9a84c" stroke-width="0.8"/>
+          <!-- Nepal text on ribbon -->
+          <text x="40" y="62" text-anchor="middle" font-size="6.5" font-weight="700" fill="#c9a84c" font-family="serif" letter-spacing="1">नेपाल</text>
+        </svg>
+      </div>
+
+      <div class="map-frame">
+        <!-- Nepal map SVG with Butwal highlighted -->
+        <svg viewBox="0 0 520 390" xmlns="http://www.w3.org/2000/svg" style="background:#050d1a">
+          <!-- Background grid -->
+          <defs>
+            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(201,168,76,0.05)" stroke-width="0.5"/>
+            </pattern>
+            <radialGradient id="glow-butwal" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="rgba(201,168,76,0.35)"/>
+              <stop offset="100%" stop-color="rgba(201,168,76,0)"/>
+            </radialGradient>
+            <filter id="blur-sm">
+              <feGaussianBlur stdDeviation="2"/>
+            </filter>
+          </defs>
+          <rect width="520" height="390" fill="url(#grid)"/>
+
+          <!-- Nepal country outline (simplified but recognizable shape) -->
+          <!-- Nepal is roughly a parallelogram wider than tall -->
+          <path d="
+            M 30 100
+            L 60 85
+            L 95 78
+            L 130 70
+            L 170 65
+            L 215 60
+            L 255 58
+            L 295 55
+            L 330 58
+            L 365 62
+            L 400 68
+            L 430 75
+            L 460 85
+            L 485 100
+            L 490 115
+            L 492 130
+            L 488 145
+            L 475 162
+            L 455 178
+            L 430 195
+            L 400 208
+            L 370 218
+            L 335 228
+            L 295 235
+            L 255 238
+            L 215 235
+            L 175 228
+            L 140 218
+            L 108 205
+            L 78 190
+            L 52 172
+            L 32 155
+            L 22 138
+            L 20 122
+            Z
+          " fill="rgba(11,24,52,0.95)" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+
+          <!-- Province shading (internal boundaries faint) -->
+          <line x1="130" y1="68" x2="108" y2="210" stroke="rgba(201,168,76,0.12)" stroke-width="0.8" stroke-dasharray="4 4"/>
+          <line x1="215" y1="60" x2="215" y2="238" stroke="rgba(201,168,76,0.12)" stroke-width="0.8" stroke-dasharray="4 4"/>
+          <line x1="295" y1="55" x2="295" y2="238" stroke="rgba(201,168,76,0.12)" stroke-width="0.8" stroke-dasharray="4 4"/>
+          <line x1="370" y1="62" x2="370" y2="228" stroke="rgba(201,168,76,0.12)" stroke-width="0.8" stroke-dasharray="4 4"/>
+          <line x1="430" y1="75" x2="430" y2="210" stroke="rgba(201,168,76,0.12)" stroke-width="0.8" stroke-dasharray="4 4"/>
+
+          <!-- Hills / terrain marks -->
+          <path d="M 60 130 Q 70 120 80 130 Q 90 120 100 130" stroke="rgba(201,168,76,0.1)" stroke-width="1" fill="none"/>
+          <path d="M 350 110 Q 365 95 380 110 Q 395 95 410 110" stroke="rgba(201,168,76,0.1)" stroke-width="1" fill="none"/>
+          <path d="M 420 120 Q 435 105 450 120 Q 460 108 470 120" stroke="rgba(201,168,76,0.1)" stroke-width="1" fill="none"/>
+
+          <!-- Mountains along top border -->
+          <path d="M 290 70 L 300 55 L 310 70" stroke="rgba(201,168,76,0.25)" stroke-width="1" fill="rgba(201,168,76,0.06)"/>
+          <path d="M 320 65 L 332 48 L 344 65" stroke="rgba(201,168,76,0.25)" stroke-width="1" fill="rgba(201,168,76,0.06)"/>
+          <path d="M 355 68 L 365 52 L 375 68" stroke="rgba(201,168,76,0.2)" stroke-width="1" fill="rgba(201,168,76,0.04)"/>
+          <!-- Everest label -->
+          <circle cx="331" cy="55" r="2" fill="rgba(201,168,76,0.5)"/>
+          <text x="340" y="52" font-size="7" fill="rgba(201,168,76,0.5)" font-family="serif" font-style="italic">Sagarmatha</text>
+
+          <!-- Major cities dots -->
+          <!-- Kathmandu (center-ish, slightly right of center) -->
+          <circle cx="295" cy="120" r="5" fill="rgba(201,168,76,0.35)" stroke="rgba(201,168,76,0.6)" stroke-width="1"/>
+          <text x="303" y="118" font-size="8.5" fill="rgba(248,244,236,0.55)" font-family="sans-serif">Kathmandu</text>
+
+          <!-- Pokhara -->
+          <circle cx="230" cy="135" r="3.5" fill="rgba(201,168,76,0.25)" stroke="rgba(201,168,76,0.45)" stroke-width="1"/>
+          <text x="238" y="133" font-size="7.5" fill="rgba(248,244,236,0.4)" font-family="sans-serif">Pokhara</text>
+
+          <!-- Biratnagar east -->
+          <circle cx="420" cy="185" r="3.5" fill="rgba(201,168,76,0.2)" stroke="rgba(201,168,76,0.35)" stroke-width="1"/>
+          <text x="428" y="183" font-size="7" fill="rgba(248,244,236,0.35)" font-family="sans-serif">Biratnagar</text>
+
+          <!-- Janakpur -->
+          <circle cx="360" cy="185" r="3" fill="rgba(201,168,76,0.2)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+
+          <!-- BUTWAL — highlighted -->
+          <!-- Glow halo -->
+          <circle cx="178" cy="188" r="28" fill="url(#glow-butwal)" filter="url(#blur-sm)"/>
+          <!-- Pulse ring 1 -->
+          <circle cx="178" cy="188" r="18" fill="none" stroke="rgba(201,168,76,0.25)" stroke-width="1.5">
+            <animate attributeName="r" from="10" to="22" dur="2.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" from="0.7" to="0" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Pulse ring 2 -->
+          <circle cx="178" cy="188" r="14" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="1">
+            <animate attributeName="r" from="8" to="18" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" from="0.6" to="0" dur="2.5s" begin="0.8s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Main dot -->
+          <circle cx="178" cy="188" r="7" fill="#c9a84c" stroke="#f8f4ec" stroke-width="2"/>
+          <!-- Center dot -->
+          <circle cx="178" cy="188" r="3" fill="#f8f4ec"/>
+
+          <!-- Butwal label -->
+          <rect x="140" y="200" width="76" height="22" rx="5" fill="rgba(201,168,76,0.9)"/>
+          <text x="178" y="214" text-anchor="middle" font-size="10" font-weight="700" fill="#050d1a" font-family="sans-serif" letter-spacing="0.5">BUTWAL</text>
+
+          <!-- Connector line to label -->
+          <line x1="178" y1="195" x2="178" y2="200" stroke="#c9a84c" stroke-width="1.2"/>
+
+          <!-- Lumbini nearby -->
+          <circle cx="148" cy="202" r="3" fill="rgba(201,168,76,0.35)" stroke="rgba(201,168,76,0.5)" stroke-width="0.8"/>
+          <text x="122" y="212" font-size="7" fill="rgba(248,244,236,0.45)" font-family="sans-serif" font-style="italic">Lumbini</text>
+
+          <!-- Nepal label -->
+          <text x="260" y="175" text-anchor="middle" font-size="13" font-weight="600" fill="rgba(248,244,236,0.08)" font-family="serif" letter-spacing="8">NEPAL</text>
+
+          <!-- Province labels -->
+          <text x="82" y="165" text-anchor="middle" font-size="7" fill="rgba(248,244,236,0.18)" font-family="sans-serif">Sudurpaschim</text>
+          <text x="175" y="155" text-anchor="middle" font-size="7" fill="rgba(248,244,236,0.18)" font-family="sans-serif">Karnali</text>
+          <text x="252" y="152" text-anchor="middle" font-size="7" fill="rgba(248,244,236,0.22)" font-family="sans-serif">Lumbini</text>
+          <text x="330" y="152" text-anchor="middle" font-size="7" fill="rgba(248,244,236,0.18)" font-family="sans-serif">Gandaki</text>
+          <text x="390" y="152" text-anchor="middle" font-size="7" fill="rgba(248,244,236,0.18)" font-family="sans-serif">Bagmati</text>
+          <text x="450" y="165" text-anchor="middle" font-size="7" fill="rgba(248,244,236,0.18)" font-family="sans-serif">Koshi</text>
+
+          <!-- Terai region shading at bottom -->
+          <rect x="20" y="210" width="472" height="25" fill="rgba(201,168,76,0.04)" rx="2"/>
+          <text x="260" y="226" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.3)" font-family="sans-serif" letter-spacing="4">TERAI PLAIN</text>
+
+          <!-- Compass rose -->
+          <g transform="translate(472, 48)">
+            <circle r="14" fill="rgba(5,13,26,0.8)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+            <text x="0" y="-5" text-anchor="middle" font-size="8" font-weight="700" fill="rgba(201,168,76,0.8)" font-family="sans-serif">N</text>
+            <polygon points="0,-2 -2,4 0,3 2,4" fill="rgba(201,168,76,0.7)"/>
+            <polygon points="0,9 -2,3 0,4 2,3" fill="rgba(248,244,236,0.3)"/>
+          </g>
+
+          <!-- Scale bar -->
+          <g transform="translate(30,358)">
+            <line x1="0" y1="0" x2="80" y2="0" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+            <line x1="0" y1="-4" x2="0" y2="4" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+            <line x1="80" y1="-4" x2="80" y2="4" stroke="rgba(201,168,76,0.4)" stroke-width="1.5"/>
+            <text x="40" y="-7" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.5)" font-family="sans-serif">100 km</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Map labels -->
+      <div class="map-label">
+        <div class="map-label-city">Butwal, Lumbini</div>
+        <div class="map-label-meta">28.1°N · 83.4°E · 205m alt.</div>
+      </div>
+
+      <!-- Floating metric cards -->
+      <div class="metric-card mc-top-left">
+        <div class="mc-label"><span class="mc-dot"></span>Live Services</div>
+        <div class="mc-value">247</div>
+        <div class="mc-sub">Requests this hour</div>
+      </div>
+
+      <div class="metric-card mc-bottom-right">
+        <div class="mc-label">Ward Coverage</div>
+        <div class="mc-value">12 / 12</div>
+        <div class="mc-sub">All wards active</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MARQUEE ===== -->
+<div class="marquee-strip">
+  <div class="marquee-inner" id="marqueeInner">
+    <span class="marquee-item"><span class="marquee-dot"></span>Book Local Transport</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Pay Water Bills Online</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>File Civic Complaints</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Ward Office Services</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Electricity Bill Payment</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Land Revenue Records</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Birth & Death Certificates</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>City Events & Notices</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Emergency Contacts</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Digital ID Verification</span>
+    <!-- duplicate for seamless loop -->
+    <span class="marquee-item"><span class="marquee-dot"></span>Book Local Transport</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Pay Water Bills Online</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>File Civic Complaints</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Ward Office Services</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Electricity Bill Payment</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Land Revenue Records</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Birth & Death Certificates</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>City Events & Notices</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Emergency Contacts</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Digital ID Verification</span>
+  </div>
+</div>
+
+<!-- ===== SERVICES ===== -->
+<section class="section" id="services">
+  <div class="reveal">
+    <div class="section-eyebrow">
+      <div class="section-eyebrow-line"></div>
+      <span class="section-eyebrow-text">What We Offer</span>
+    </div>
+    <h2 class="section-heading">Every Civic Need,<br>One Platform.</h2>
+    <p class="section-sub">From transport to tax payments — we've unified every essential service so Butwal's citizens can focus on what truly matters.</p>
+  </div>
+  <div class="services-grid">
+    <a href="#book" class="service-tile reveal reveal-delay-1">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h5l3 3v3H16V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <div class="tile-title">Book a Trip</div>
+      <div class="tile-desc">Reserve seats on local buses, microbuses, and intercity routes departing from Butwal. Real-time availability.</div>
+      <div class="tile-arrow">Get Started <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+    <a href="#complaints" class="service-tile reveal reveal-delay-2">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <div class="tile-title">File a Complaint</div>
+      <div class="tile-desc">Report potholes, broken streetlights, water shortages, or any civic issue directly to the municipal office.</div>
+      <div class="tile-arrow">Report Now <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+    <a href="#" class="service-tile reveal reveal-delay-3">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      </div>
+      <div class="tile-title">Pay Bills</div>
+      <div class="tile-desc">Settle water, electricity, house tax, and other municipal dues securely online — anytime, anywhere.</div>
+      <div class="tile-arrow">Pay Now <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+    <a href="#" class="service-tile reveal reveal-delay-1">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div class="tile-title">Ward Services</div>
+      <div class="tile-desc">Apply for birth certificates, citizenship recommendations, marriage registrations, and ward-level permits.</div>
+      <div class="tile-arrow">Apply <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+    <a href="#" class="service-tile reveal reveal-delay-2">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="tile-title">City Notices</div>
+      <div class="tile-desc">Stay updated with official announcements, public events, tenders, and notices from Butwal Municipality.</div>
+      <div class="tile-arrow">View All <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+    <a href="#" class="service-tile reveal reveal-delay-3">
+      <div class="tile-icon">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <div class="tile-title">Land Records</div>
+      <div class="tile-desc">Search land ownership, cadastral maps, revenue records, and plot details within Butwal jurisdiction.</div>
+      <div class="tile-arrow">Search <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+  </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="section section-alt" id="about">
+  <div class="about-grid">
+    <div class="about-visual reveal">
+      <div class="nepal-map-box">
+        <!-- Detailed Butwal surroundings zoomed map -->
+        <svg viewBox="0 0 460 340" xmlns="http://www.w3.org/2000/svg" style="display:block; background:#050d1a;">
+          <defs>
+            <pattern id="grid2" width="30" height="30" patternUnits="userSpaceOnUse">
+              <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(201,168,76,0.04)" stroke-width="0.5"/>
+            </pattern>
+            <radialGradient id="glow2" cx="50%" cy="55%" r="40%">
+              <stop offset="0%" stop-color="rgba(201,168,76,0.2)"/>
+              <stop offset="100%" stop-color="rgba(201,168,76,0)"/>
+            </radialGradient>
+          </defs>
+          <rect width="460" height="340" fill="url(#grid2)"/>
+          <rect width="460" height="340" fill="url(#glow2)"/>
+
+          <!-- Hills to the north (Palpa hills) -->
+          <path d="M 0 80 Q 50 30 110 50 Q 160 20 230 40 Q 290 15 360 38 Q 420 25 460 55 L460 0 L0 0 Z" fill="rgba(13,32,69,0.9)" stroke="rgba(201,168,76,0.15)" stroke-width="1"/>
+          <path d="M 0 80 Q 50 30 110 50 Q 160 20 230 40 Q 290 15 360 38 Q 420 25 460 55" fill="none" stroke="rgba(201,168,76,0.35)" stroke-width="1.5"/>
+
+          <!-- Mountain peaks -->
+          <path d="M 90 50 L 110 28 L 130 50" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.3)" stroke-width="1"/>
+          <path d="M 200 42 L 230 18 L 255 42" fill="rgba(201,168,76,0.10)" stroke="rgba(201,168,76,0.25)" stroke-width="1"/>
+          <path d="M 340 42 L 365 20 L 388 42" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+
+          <!-- Terai flatland (south) -->
+          <rect x="0" y="280" width="460" height="60" fill="rgba(201,168,76,0.04)"/>
+          <text x="230" y="310" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.25)" font-family="sans-serif" letter-spacing="5">TERAI PLAINS</text>
+
+          <!-- Tinau River -->
+          <path d="M 40 90 Q 80 100 120 118 Q 160 135 200 148 Q 230 158 260 155 Q 290 152 320 160 Q 360 168 410 172" fill="none" stroke="rgba(100,160,220,0.45)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M 40 93 Q 80 104 120 122 Q 160 140 200 152" fill="none" stroke="rgba(100,160,220,0.2)" stroke-width="1.5"/>
+          <text x="290" y="152" font-size="8" fill="rgba(100,160,220,0.5)" font-style="italic" font-family="sans-serif">Tinau River</text>
+
+          <!-- Roads network -->
+          <!-- East-West Highway -->
+          <path d="M 0 220 Q 100 218 200 215 Q 300 212 460 210" fill="none" stroke="rgba(201,168,76,0.3)" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="50" y="230" font-size="7.5" fill="rgba(201,168,76,0.4)" font-family="sans-serif">Siddhartha Hwy</text>
+
+          <!-- Butwal-Pokhara road -->
+          <path d="M 230 160 Q 220 140 200 115 Q 185 95 170 78" fill="none" stroke="rgba(201,168,76,0.2)" stroke-width="1.5" stroke-dasharray="5 3"/>
+
+          <!-- Local roads from Butwal -->
+          <path d="M 230 185 L 230 215" stroke="rgba(248,244,236,0.12)" stroke-width="1.5"/>
+          <path d="M 230 185 L 195 185" stroke="rgba(248,244,236,0.12)" stroke-width="1.5"/>
+          <path d="M 230 185 L 268 190" stroke="rgba(248,244,236,0.12)" stroke-width="1.5"/>
+
+          <!-- Nearby towns -->
+          <circle cx="160" cy="200" r="4" fill="rgba(248,244,236,0.2)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+          <text x="140" y="216" font-size="7.5" fill="rgba(248,244,236,0.35)" font-family="sans-serif">Tansen</text>
+
+          <circle cx="310" cy="195" r="4" fill="rgba(248,244,236,0.2)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+          <text x="318" y="193" font-size="7.5" fill="rgba(248,244,236,0.35)" font-family="sans-serif">Bhairahawa</text>
+
+          <circle cx="175" cy="245" r="4" fill="rgba(248,244,236,0.15)" stroke="rgba(201,168,76,0.25)" stroke-width="0.8"/>
+          <text x="155" y="259" font-size="7.5" fill="rgba(248,244,236,0.3)" font-family="sans-serif">Lumbini</text>
+
+          <!-- BUTWAL — central highlighted -->
+          <circle cx="230" cy="185" r="35" fill="rgba(201,168,76,0.06)"/>
+          <circle cx="230" cy="185" r="22" fill="rgba(201,168,76,0.08)"/>
+
+          <!-- Animated pulse -->
+          <circle cx="230" cy="185" r="16" fill="none" stroke="rgba(201,168,76,0.4)" stroke-width="1.5">
+            <animate attributeName="r" from="8" to="24" dur="2.8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" from="0.8" to="0" dur="2.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="230" cy="185" r="12" fill="rgba(201,168,76,0.2)" stroke="#c9a84c" stroke-width="1.5"/>
+          <circle cx="230" cy="185" r="5" fill="#c9a84c"/>
+          <circle cx="230" cy="185" r="2.5" fill="#f8f4ec"/>
+
+          <!-- Butwal city area indicator -->
+          <rect x="192" y="200" width="76" height="24" rx="6" fill="rgba(201,168,76,0.92)"/>
+          <text x="230" y="215" text-anchor="middle" font-size="11" font-weight="700" fill="#050d1a" font-family="sans-serif" letter-spacing="1">BUTWAL</text>
+          <text x="230" y="226" text-anchor="middle" font-size="7" fill="rgba(5,13,26,0.6)" font-family="sans-serif">Metropolitan City</text>
+
+          <!-- Ward map outline around Butwal -->
+          <path d="M 200 165 Q 215 155 230 158 Q 248 155 262 168 Q 268 182 264 198 Q 256 210 240 214 Q 224 218 210 212 Q 198 202 196 188 Q 195 176 200 165 Z" fill="none" stroke="rgba(201,168,76,0.22)" stroke-width="1.2" stroke-dasharray="3 3"/>
+
+          <!-- Compass -->
+          <g transform="translate(432, 36)">
+            <circle r="18" fill="rgba(5,13,26,0.85)" stroke="rgba(201,168,76,0.3)" stroke-width="0.8"/>
+            <text x="0" y="-6" text-anchor="middle" font-size="9" font-weight="700" fill="rgba(201,168,76,0.9)" font-family="sans-serif">N</text>
+            <polygon points="0,-4 -3,5 0,3 3,5" fill="rgba(201,168,76,0.8)"/>
+            <polygon points="0,12 -3,3 0,5 3,3" fill="rgba(248,244,236,0.3)"/>
+            <text x="8" y="3" font-size="7" fill="rgba(248,244,236,0.3)" font-family="sans-serif">E</text>
+            <text x="-16" y="3" font-size="7" fill="rgba(248,244,236,0.3)" font-family="sans-serif">W</text>
+          </g>
+
+          <!-- Elevation legend -->
+          <g transform="translate(16, 295)">
+            <text font-size="7" fill="rgba(201,168,76,0.45)" font-family="sans-serif" y="0">Elev: 205m | Zone: Terai-Hill Junction</text>
+          </g>
+        </svg>
+      </div>
+      <div class="about-quote">
+        <div class="about-quote-text">"Butwal — where the hills meet the plains."</div>
+        <div class="about-quote-attr">Lumbini Province, Nepal</div>
+      </div>
+    </div>
+    <div class="about-right reveal reveal-delay-2">
+      <div class="section-eyebrow">
+        <div class="section-eyebrow-line"></div>
+        <span class="section-eyebrow-text">About ButwalCitizen</span>
+      </div>
+      <h2 class="section-heading">Built for<br>the People of Butwal.</h2>
+      <p class="section-sub" style="margin-bottom: 12px;">ButwalCitizen is an initiative by Butwal Metropolitan City to digitize and simplify civic services for every resident across all 12 wards.</p>
+      <ul>
+        <li>
+          <div class="li-dot"></div>
+          <span class="li-text"><strong>Transparent Governance</strong> — Every complaint is tracked publicly, with timelines and responsible officers named.</span>
+        </li>
+        <li>
+          <div class="li-dot"></div>
+          <span class="li-text"><strong>Accessible to All</strong> — Nepali and English language support. Works on any device, including feature phones via USSD.</span>
+        </li>
+        <li>
+          <div class="li-dot"></div>
+          <span class="li-text"><strong>Ward-Level Precision</strong> — All 12 wards of Butwal Sub-Metropolitan have dedicated digital offices and ward-specific services.</span>
+        </li>
+        <li>
+          <div class="li-dot"></div>
+          <span class="li-text"><strong>Real-Time Updates</strong> — SMS and app notifications keep citizens informed on complaint status, bill dues, and city notices.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section class="section" id="features">
+  <div class="reveal" style="text-align:center; max-width:600px; margin:0 auto 20px;">
+    <div class="section-eyebrow" style="justify-content:center;">
+      <div class="section-eyebrow-line"></div>
+      <span class="section-eyebrow-text">Why Citizens Love It</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="section-heading">Designed Around<br>Real Lives.</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal reveal-delay-1">
+      <div class="fc-num">01</div>
+      <div class="fc-title">Zero Wait Times</div>
+      <div class="fc-text">Services that once required hours at ward offices now complete in minutes through our digital portal.</div>
+    </div>
+    <div class="feature-card reveal reveal-delay-2">
+      <div class="fc-num">02</div>
+      <div class="fc-title">End-to-End Tracking</div>
+      <div class="fc-text">From submission to resolution, every request has a unique ID and a real-time status dashboard.</div>
+    </div>
+    <div class="feature-card reveal reveal-delay-3">
+      <div class="fc-num">03</div>
+      <div class="fc-title">Secure Payments</div>
+      <div class="fc-text">All bill payments are encrypted and processed through Nepal Government-approved payment gateways.</div>
+    </div>
+    <div class="feature-card reveal" style="transition-delay:0.4s">
+      <div class="fc-num">04</div>
+      <div class="fc-title">Multilingual</div>
+      <div class="fc-text">Full support in Nepali (नेपाली) and English to ensure no citizen is left behind in the digital transition.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="section section-alt" id="testimonials">
+  <div class="reveal" style="text-align:center;margin-bottom:60px;">
+    <div class="section-eyebrow" style="justify-content:center;">
+      <div class="section-eyebrow-line"></div>
+      <span class="section-eyebrow-text">Citizen Voices</span>
+      <div class="section-eyebrow-line"></div>
+    </div>
+    <h2 class="section-heading">What Butwal Says.</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testi-card reveal reveal-delay-1">
+      <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="testi-text">"I filed a complaint about the broken road in Ward 7 on Monday. It was repaired by Thursday. I couldn't believe how fast the response was."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">SR</div>
+        <div>
+          <div class="testi-name">Sunita Rana</div>
+          <div class="testi-loc">Ward 7, Butwal</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal reveal-delay-2">
+      <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="testi-text">"Booking a bus to Pokhara from here used to mean going to the bus park at 6am. Now I reserve my seat the night before from my phone."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">BP</div>
+        <div>
+          <div class="testi-name">Bikash Poudel</div>
+          <div class="testi-loc">Ward 3, Butwal</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal reveal-delay-3">
+      <div class="testi-stars"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+      <div class="testi-text">"Getting my daughter's birth certificate used to take days and multiple visits. Through ButwalCitizen, the whole process was completed in a single afternoon."</div>
+      <div class="testi-author">
+        <div class="testi-avatar">KG</div>
+        <div>
+          <div class="testi-name">Kamala Gurung</div>
+          <div class="testi-loc">Ward 11, Butwal</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EMERGENCY ===== -->
+<section class="section" id="emergency">
+  <div class="emergency-bar reveal">
+    <div class="emergency-text">
+      <h3>Emergency Services</h3>
+      <p>Immediate response 24/7 — Butwal Metropolitan City Emergency Operations</p>
+    </div>
+    <div class="emergency-numbers">
+      <div class="emergency-num">
+        <div class="en-label">Police</div>
+        <div class="en-number">100</div>
+      </div>
+      <div class="emergency-num">
+        <div class="en-label">Ambulance</div>
+        <div class="en-number">102</div>
+      </div>
+      <div class="emergency-num">
+        <div class="en-label">Fire</div>
+        <div class="en-number">101</div>
+      </div>
+      <div class="emergency-num">
+        <div class="en-label">City Help</div>
+        <div class="en-number">071-540800</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-bar reveal">
+    <a href="#" class="quick-item">
+      <span class="qi-icon">🚌</span>
+      <span class="qi-label">Book a Trip</span>
+    </a>
+    <a href="#" class="quick-item">
+      <span class="qi-icon">📋</span>
+      <span class="qi-label">File Complaint</span>
+    </a>
+    <a href="#" class="quick-item">
+      <span class="qi-icon">💧</span>
+      <span class="qi-label">Water Bill</span>
+    </a>
+    <a href="#" class="quick-item">
+      <span class="qi-icon">⚡</span>
+      <span class="qi-label">Electricity</span>
+    </a>
+    <a href="#" class="quick-item">
+      <span class="qi-icon">📜</span>
+      <span class="qi-label">Certificates</span>
+    </a>
+    <a href="#" class="quick-item">
+      <span class="qi-icon">🗺️</span>
+      <span class="qi-label">Land Records</span>
+    </a>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a class="brand" href="#">
+        <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+          <rect width="44" height="44" rx="12" fill="#071225"/>
+          <rect x="0.5" y="0.5" width="43" height="43" rx="11.5" stroke="#c9a84c" stroke-opacity="0.35"/>
+          <path d="M8 32 L8 20 L22 11 L36 20 L36 32" stroke="#c9a84c" stroke-width="1.6" stroke-linejoin="round" fill="none"/>
+          <rect x="17" y="24" width="10" height="8" rx="1.5" fill="none" stroke="#c9a84c" stroke-width="1.4"/>
+          <rect x="11" y="21" width="5" height="4" rx="1" fill="rgba(201,168,76,0.25)" stroke="#c9a84c" stroke-width="1"/>
+          <rect x="28" y="21" width="5" height="4" rx="1" fill="rgba(201,168,76,0.25)" stroke="#c9a84c" stroke-width="1"/>
+          <line x1="22" y1="11" x2="22" y2="7" stroke="#c9a84c" stroke-width="1.4"/>
+          <polygon points="22,7 27,9 22,11" fill="#c9a84c" opacity="0.8"/>
+          <line x1="6" y1="32" x2="38" y2="32" stroke="#c9a84c" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <div class="brand-words" style="margin-left:12px">
+          <span class="brand-name">ButwalCitizen</span>
+          <span class="brand-tagline">Smart City Portal</span>
+        </div>
+      </a>
+      <p>An official digital service platform by Butwal Metropolitan City, Lumbini Province, Nepal. Serving all 12 wards of Butwal Sub-Metropolitan City.</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn" title="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="#" class="social-btn" title="Twitter">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+        </a>
+        <a href="#" class="social-btn" title="YouTube">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.41 19.6C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+        </a>
+        <a href="#" class="social-btn" title="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Services</h4>
+      <ul>
+        <li><a href="#">Book a Trip</a></li>
+        <li><a href="#">File Complaint</a></li>
+        <li><a href="#">Pay Bills</a></li>
+        <li><a href="#">Land Records</a></li>
+        <li><a href="#">Certificates</a></li>
+        <li><a href="#">Ward Permits</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>City Info</h4>
+      <ul>
+        <li><a href="#">About Butwal</a></li>
+        <li><a href="#">Mayor's Message</a></li>
+        <li><a href="#">12 Wards Map</a></li>
+        <li><a href="#">Municipal Budget</a></li>
+        <li><a href="#">City Statistics</a></li>
+        <li><a href="#">Tenders</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <ul>
+        <li><a href="#">Butwal Municipality</a></li>
+        <li><a href="#">Ward Offices</a></li>
+        <li><a href="#">Help Centre</a></li>
+        <li><a href="#">Feedback</a></li>
+        <li><a href="#">Media Enquiries</a></li>
+        <li><a href="#">RTI Requests</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copy">
+      &copy; 2025 <span>Butwal Metropolitan City</span>. All rights reserved. Built with ♥ for Butwal.
+    </div>
+    <div class="footer-legal">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Accessibility</a>
+      <a href="#">Sitemap</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── Hamburger / mobile drawer ──
+const hamburger      = document.getElementById('hamburger');
+const mobileDrawer   = document.getElementById('mobileDrawer');
+const drawerBackdrop = document.getElementById('drawerBackdrop');
+
+function toggleMenu(open) {
+  hamburger.classList.toggle('open', open);
+  hamburger.setAttribute('aria-expanded', open);
+  mobileDrawer.classList.toggle('open', open);
+  drawerBackdrop.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+
+hamburger.addEventListener('click', () => toggleMenu(!hamburger.classList.contains('open')));
+
+// Close when a drawer link is tapped
+document.querySelectorAll('.mob-link').forEach(a => {
+  a.addEventListener('click', () => toggleMenu(false));
+});
+
+// Close on backdrop click
+drawerBackdrop.addEventListener('click', () => toggleMenu(false));
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') toggleMenu(false);
+});
+
+// ── Custom cursor ──
+// const cursor = document.getElementById('cursor');
+// const ring = document.getElementById('cursor-ring');
+// let mx = 0, my = 0, rx = 0, ry = 0;
+// document.addEventListener('mousemove', e => {
+//   mx = e.clientX; my = e.clientY;
+//   cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+// });
+// function animRing() {
+//   rx += (mx - rx) * 0.12;
+//   ry += (my - ry) * 0.12;
+//   ring.style.transform = `translate(${rx - 18}px, ${ry - 18}px)`;
+//   requestAnimationFrame(animRing);
+// }
+// animRing();
+// document.querySelectorAll('a, button').forEach(el => {
+//   el.addEventListener('mouseenter', () => {
+//     cursor.style.transform += ' scale(2.5)';
+//     ring.style.width = '52px'; ring.style.height = '52px';
+//     ring.style.borderColor = 'rgba(201,168,76,0.8)';
+//   });
+//   el.addEventListener('mouseleave', () => {
+//     ring.style.width = '36px'; ring.style.height = '36px';
+//     ring.style.borderColor = 'rgba(201,168,76,0.5)';
+//   });
+// });
+
+// Navbar scroll effect
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ── SCROLL SPY ──
+// Uses IntersectionObserver on each section. When a section crosses
+// the top 30% of the viewport it becomes "active" in the nav.
+const navLinks = document.querySelectorAll('.nav-link[data-section]');
+const sectionIds = Array.from(navLinks).map(l => l.dataset.section);
+
+function setActive(id) {
+  navLinks.forEach(l => {
+    l.classList.toggle('active', l.dataset.section === id);
+  });
+}
+
+// Build a map of id → element (only for sections that exist)
+const sectionEls = {};
+sectionIds.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) sectionEls[id] = el;
+});
+
+// Keep track of which sections are currently intersecting
+const visible = new Set();
+
+const spyObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) visible.add(e.target.id);
+    else visible.delete(e.target.id);
+  });
+
+  // Among all visible sections, pick the one earliest in DOM order
+  const active = sectionIds.find(id => visible.has(id));
+  if (active) setActive(active);
+}, {
+  // rootMargin: shrink top edge so section must be well into view
+  rootMargin: '-15% 0px -60% 0px',
+  threshold: 0
+});
+
+Object.values(sectionEls).forEach(el => spyObserver.observe(el));
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+reveals.forEach(r => revealObserver.observe(r));
+</script>
+</body>
+</html>
